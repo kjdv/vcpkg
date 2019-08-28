@@ -1,3 +1,4 @@
 Source: results
 Version:
 Description: Rust-style option- and result types for C++
+Build-Depends: gtest

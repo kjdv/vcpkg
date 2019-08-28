@@ -1,0 +1,4 @@
+Source: {{cookiecutter.name}}
+Version: {{cookiecutter.version}}
+Description: {{cookiecutter.description}}
+Build-Depends: {{cookiecutter.dependencies.split()|join(', ')}}

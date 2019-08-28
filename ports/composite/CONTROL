@@ -1,0 +1,4 @@
+Source: composite
+Version: 0.1
+Description: composite values
+Build-Depends: gtest
