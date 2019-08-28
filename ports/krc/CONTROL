@@ -1,0 +1,4 @@
+Source: krc
+Version: 0.1
+Description: Klaas Routine and Channel library
+Build-Depends: gtest
