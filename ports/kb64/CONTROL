@@ -1,0 +1,4 @@
+Source: kb64
+Version: 0.1
+Description: base64 encoding and decoding
+Build-Depends: gtest
