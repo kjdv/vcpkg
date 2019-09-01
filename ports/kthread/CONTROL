@@ -1,0 +1,4 @@
+Source: kthread
+Version: 0.1
+Description: Klaas' thread utility library
+Build-Depends: results
