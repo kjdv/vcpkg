@@ -1,0 +1,4 @@
+Source: kyaml
+Version: 0.1
+Description: Klaas' YAML parsing library
+Build-Depends: gtest, results, composite
