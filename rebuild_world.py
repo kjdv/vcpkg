@@ -14,6 +14,8 @@ packages = [
 
     'kyaml',
     'kthread',
+
+    'klog',
 ]
 
 def banner(msg):

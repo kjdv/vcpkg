@@ -1,0 +1,4 @@
+Source: klog
+Version: 0.1
+Description: Klaas' logging utility
+Build-Depends: gtest, benchmark, fmt, kthread
