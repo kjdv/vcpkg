@@ -16,6 +16,7 @@ packages = [
     'kthread',
 
     'klog',
+    'klog-gtest',
 ]
 
 def banner(msg):

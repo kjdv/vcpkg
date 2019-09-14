@@ -1,0 +1,4 @@
+Source: klog-gtest
+Version: 0.1
+Description: Companion to klog_test, capture logging during gtest runs
+Build-Depends: gtest, klog
