@@ -1,0 +1,4 @@
+Source: kjson
+Version: 0.1
+Description: Json marshalling
+Build-Depends: gtest, composite, results, kb64

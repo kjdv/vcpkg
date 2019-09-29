@@ -12,6 +12,7 @@ packages = [
     'composite',
     'krc',
 
+    'kjson',
     'kyaml',
     'kthread',
 
