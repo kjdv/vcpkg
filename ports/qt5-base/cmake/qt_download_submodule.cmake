@@ -15,18 +15,27 @@ function(qt_download_submodule)
 
     set(FULL_VERSION "${QT_MAJOR_MINOR_VER}.${QT_PATCH_VER}")
     set(ARCHIVE_NAME "${NAME}-everywhere-src-${FULL_VERSION}.tar.xz")
-
+    set(URLS "http://download.qt.io/official_releases/qt/${QT_MAJOR_MINOR_VER}/${FULL_VERSION}/submodules/${ARCHIVE_NAME}"
+    "http://mirrors.ocf.berkeley.edu/qt/official_releases/qt/${QT_MAJOR_MINOR_VER}/${FULL_VERSION}/submodules/${ARCHIVE_NAME}"
+    )
     vcpkg_download_distfile(ARCHIVE_FILE
-        URLS "http://download.qt.io/official_releases/qt/${QT_MAJOR_MINOR_VER}/${FULL_VERSION}/submodules/${ARCHIVE_NAME}"
+        URLS ${URLS}
         FILENAME ${ARCHIVE_NAME}
         SHA512 ${QT_HASH_${PORT}}
     )
-    vcpkg_extract_source_archive_ex(
-        OUT_SOURCE_PATH SOURCE_PATH
-        ARCHIVE "${ARCHIVE_FILE}"
-        REF ${FULL_VERSION}
-        PATCHES ${_csc_PATCHES}
-    )
+
+    if(QT_UPDATE_VERSION)
+        file(SHA512 "${ARCHIVE_FILE}" ARCHIVE_HASH)
+        message(STATUS "${PORT} new hash is ${ARCHIVE_HASH}")
+        file(APPEND "${VCPKG_ROOT_DIR}/ports/qt5-base/cmake/qt_new_hashes.cmake" "set(QT_HASH_${PORT} ${ARCHIVE_HASH})\n")
+    else()
+        vcpkg_extract_source_archive_ex(
+            OUT_SOURCE_PATH SOURCE_PATH
+            ARCHIVE "${ARCHIVE_FILE}"
+            REF ${FULL_VERSION}
+            PATCHES ${_csc_PATCHES}
+        )
+    endif()
 
     set(${_csc_OUT_SOURCE_PATH} ${SOURCE_PATH} PARENT_SCOPE)
 endfunction()
