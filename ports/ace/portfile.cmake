@@ -1,36 +1,39 @@
 # Using zip archive under Linux would cause sh/perl to report "No such file or directory" or "bad interpreter"
 # when invoking `prj_install.pl`.
 # So far this issue haven't yet be triggered under WSL 1 distributions. Not sure the root cause of it.
+set(ACE_VERSION 7.0.0)
+string(REPLACE "." "_" ACE_VERSION_DIRECTORY ${ACE_VERSION})
+
 if("tao" IN_LIST FEATURES)
   if(VCPKG_TARGET_IS_WINDOWS)
       # Don't change to vcpkg_from_github! This points to a release and not an archive
       vcpkg_download_distfile(ARCHIVE
-          URLS "https://github.com/DOCGroup/ACE_TAO/releases/download/ACE%2BTAO-6_5_9/ACE%2BTAO-src-6.5.9.zip"
-          FILENAME ACE-TAO-6.5.9.zip
-          SHA512 de626d693911ea6b43001b16183996bd537777b42530a95ef226265948802b87aaac935d92265f1dda39c864a875d669a10cdcb0083e3dc7c3f5f661a5ee9d79
+          URLS "https://github.com/DOCGroup/ACE_TAO/releases/download/ACE%2BTAO-${ACE_VERSION_DIRECTORY}/ACE%2BTAO-src-${ACE_VERSION}.zip"
+          FILENAME ACE-TAO-${ACE_VERSION}.zip
+          SHA512 9b99a07bfc80d616843b2a6f8f9a0fc0868fefcb98a1f57f04cc624f39ad9162043bb29d886eda2162143a321b434b8496717b005fa314acbc5403a37a965df6
       )
     else()
       # VCPKG_TARGET_IS_LINUX
       vcpkg_download_distfile(ARCHIVE
-          URLS "https://github.com/DOCGroup/ACE_TAO/releases/download/ACE%2BTAO-6_5_9/ACE%2BTAO-src-6.5.9.tar.gz"
-          FILENAME ACE-TAO-6.5.9.tar.gz
-          SHA512 d53b7a3745d1be29489d495651a643cf8b436be97a21599bbe4fba19b827cb1ba85dca82542e0eb27384fe87ab163e69c5e0c4c9b61a4c7971077b13edece5cd
+          URLS "https://github.com/DOCGroup/ACE_TAO/releases/download/ACE%2BTAO-${ACE_VERSION_DIRECTORY}/ACE%2BTAO-src-${ACE_VERSION}.tar.gz"
+          FILENAME ACE-TAO-${ACE_VERSION}.tar.gz
+          SHA512 731896ae9939702b70d293ced64aae1030ddf7545fba926c99b495a43e37aaacc9c9d91f6aadef0153c128704ba7c8545d9b81f9fa0f58de4939e3be4eab1103
       )
     endif()
 else()
   if(VCPKG_TARGET_IS_WINDOWS)
     # Don't change to vcpkg_from_github! This points to a release and not an archive
     vcpkg_download_distfile(ARCHIVE
-        URLS "https://github.com/DOCGroup/ACE_TAO/releases/download/ACE%2BTAO-6_5_9/ACE-src-6.5.9.zip"
-        FILENAME ACE-src-6.5.9.zip
-        SHA512 49e2e5f9d0a88ae1b8a75aacb962e4185a9f8c8aae6cde656026267524bcef8a673514fe35709896a1c4e356cb436b249ff5e3d487e8f3fa2e618e2fb813fa43
+        URLS "https://github.com/DOCGroup/ACE_TAO/releases/download/ACE%2BTAO-${ACE_VERSION_DIRECTORY}/ACE-src-${ACE_VERSION}.zip"
+        FILENAME ACE-src-${ACE_VERSION}.zip
+        SHA512 6b2ddaabaa737bd13d8541d1458ea2f73cbee558f7a294a16078d68e0f294dc09310661ec23ba3077528dfe7340f7040cccc4bd7082025d7b4f3be52d6718769
     )
   else(VCPKG_TARGET_IS_WINDOWS)
     # VCPKG_TARGET_IS_LINUX
     vcpkg_download_distfile(ARCHIVE
-        URLS "https://github.com/DOCGroup/ACE_TAO/releases/download/ACE%2BTAO-6_5_9/ACE-src-6.5.9.tar.gz"
-        FILENAME ACE-src-6.5.9.tar.gz
-        SHA512 3e1655d4b215b5195a29b22f2e43d985d68367294df98da251dbbedecd6bdb5662a9921faac43be5756cb2fca7a840d58c6ec92637da7fb9d1b5e2bca766a1b4
+        URLS "https://github.com/DOCGroup/ACE_TAO/releases/download/ACE%2BTAO-${ACE_VERSION_DIRECTORY}/ACE-src-${ACE_VERSION}.tar.gz"
+        FILENAME ACE-src-${ACE_VERSION}.tar.gz
+        SHA512 91541eac3c7246e5620ee805c297b80406f2e27e06338f142e40633ec74ef5e18e65164c66225bb8606314b63d6b197c6122927f4300bef4bb88010e8b5571b1
     )
   endif()
 endif()
@@ -38,8 +41,6 @@ endif()
 vcpkg_extract_source_archive_ex(
     OUT_SOURCE_PATH SOURCE_PATH
     ARCHIVE ${ARCHIVE}
-    PATCHES
-        process_manager.patch # Fix MSVC 16.5 ICE
 )
 
 set(ACE_ROOT ${SOURCE_PATH})
@@ -103,7 +104,7 @@ elseif(VCPKG_TARGET_IS_LINUX)
 elseif(VCPKG_TARGET_IS_OSX)
   set(SOLUTION_TYPE gnuace)
   file(WRITE ${ACE_SOURCE_PATH}/config.h "#include \"ace/config-macosx.h\"")
-  file(WRITE ${ACE_ROOT}/include/makeinclude/platform_macros.GNU "include $(ACE_ROOT)/include/makeinclude/platform_macosx.GNU")
+  file(WRITE ${ACE_ROOT}/include/makeinclude/platform_macros.GNU "c++11=1\ninclude $(ACE_ROOT)/include/makeinclude/platform_macosx.GNU")
 endif()
 
 if(VCPKG_TARGET_IS_UWP)
@@ -125,8 +126,9 @@ if(VCPKG_TARGET_IS_WINDOWS)
     LICENSE_SUBPATH COPYING
     PLATFORM ${MSBUILD_PLATFORM}
     USE_VCPKG_INTEGRATION
+    SKIP_CLEAN
   )
-  
+
   # ACE itself does not define an install target, so it is not clear which
   # headers are public and which not. For the moment we install everything
   # that is in the source path and ends in .h, .inl
@@ -146,6 +148,9 @@ if(VCPKG_TARGET_IS_WINDOWS)
     endforeach()
   endfunction()
 
+  get_filename_component(SOURCE_PATH_SUFFIX "${SOURCE_PATH}" NAME)
+  set(SOURCE_COPY_PATH ${CURRENT_BUILDTREES_DIR}/${TARGET_TRIPLET}-rel/${SOURCE_PATH_SUFFIX})
+
   # Install headers in subdirectory
   set(ACE_INCLUDE_FOLDERS
       "ace"
@@ -159,22 +164,22 @@ if(VCPKG_TARGET_IS_WINDOWS)
       "ace/os_include/net"
       "ace/os_include/netinet"
       "ace/os_include/sys")
-  install_includes(${ACE_ROOT} "${ACE_INCLUDE_FOLDERS}")
+  install_includes(${SOURCE_COPY_PATH} "${ACE_INCLUDE_FOLDERS}")
 
   if("ssl" IN_LIST FEATURES)
-    install_includes(${ACE_ROOT} "ace/SSL")
+    install_includes(${SOURCE_COPY_PATH} "ace/SSL")
   endif()
 
   if("tao" IN_LIST FEATURES)
     set(ACEXML_INCLUDE_FOLDERS "ACEXML/apps/svcconf" "ACEXML/common"
                                "ACEXML/parser/parser")
-    install_includes(${ACE_ROOT} "${ACEXML_INCLUDE_FOLDERS}")
+    install_includes(${SOURCE_COPY_PATH} "${ACEXML_INCLUDE_FOLDERS}")
 
     set(ACE_PROTOCOLS_INCLUDE_FOLDERS "ace/HTBP" "ace/INet" "ace/RMCast"
                                       "ace/TMCast")
-    install_includes(${ACE_ROOT}/protocols "${ACE_PROTOCOLS_INCLUDE_FOLDERS}")
+    install_includes(${SOURCE_COPY_PATH}/protocols "${ACE_PROTOCOLS_INCLUDE_FOLDERS}")
 
-    install_includes(${ACE_ROOT} "Kokyu")
+    install_includes(${SOURCE_COPY_PATH} "Kokyu")
 
     set(TAO_ORBSVCS_INCLUDE_FOLDERS
         "orbsvcs"
@@ -208,11 +213,11 @@ if(VCPKG_TARGET_IS_WINDOWS)
     if("ssl" IN_LIST FEATURES)
       list(APPEND TAO_ORBSVCS_INCLUDE_FOLDERS "orbsvcs/SSLIOP")
     endif()
-    install_includes(${TAO_ROOT}/orbsvcs "${TAO_ORBSVCS_INCLUDE_FOLDERS}")
+    install_includes(${SOURCE_COPY_PATH}/TAO/orbsvcs "${TAO_ORBSVCS_INCLUDE_FOLDERS}")
 
     set(TAO_ROOT_ORBSVCS_INCLUDE_FOLDERS "orbsvcs/FT_ReplicationManager"
                                          "orbsvcs/Notify_Service")
-    install_includes(${TAO_ROOT} "${TAO_ROOT_ORBSVCS_INCLUDE_FOLDERS}")
+    install_includes(${SOURCE_COPY_PATH}/TAO "${TAO_ROOT_ORBSVCS_INCLUDE_FOLDERS}")
 
     set(TAO_INCLUDE_FOLDERS
         "tao"
@@ -254,19 +259,21 @@ if(VCPKG_TARGET_IS_WINDOWS)
     if("zlib" IN_LIST FEATURES)
       list(APPEND TAO_INCLUDE_FOLDERS "tao/Compression/zlib")
     endif()
-    install_includes(${TAO_ROOT} "${TAO_INCLUDE_FOLDERS}")
+    install_includes(${SOURCE_COPY_PATH}/TAO "${TAO_INCLUDE_FOLDERS}")
   endif()
-  
+
   # Remove dlls without any export
   if("tao" IN_LIST FEATURES)
     if (VCPKG_LIBRARY_LINKAGE STREQUAL dynamic)
-      file(REMOVE 
-        ${CURRENT_PACKAGES_DIR}/bin/ACEXML_XML_Svc_Conf_Parser.dll 
+      file(REMOVE
+        ${CURRENT_PACKAGES_DIR}/bin/ACEXML_XML_Svc_Conf_Parser.dll
         ${CURRENT_PACKAGES_DIR}/bin/ACEXML_XML_Svc_Conf_Parser.pdb
         ${CURRENT_PACKAGES_DIR}/debug/bin/ACEXML_XML_Svc_Conf_Parserd.dll
         ${CURRENT_PACKAGES_DIR}/debug/bin/ACEXML_XML_Svc_Conf_Parserd_dll.pdb)
     endif()
   endif()
+
+  vcpkg_clean_msbuild()
 elseif(VCPKG_TARGET_IS_LINUX OR VCPKG_TARGET_IS_OSX)
   FIND_PROGRAM(MAKE make)
   IF (NOT MAKE)

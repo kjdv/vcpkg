@@ -1,16 +1,12 @@
 vcpkg_fail_port_install(ON_TARGET "Linux" "OSX" "UWP" ON_ARCH "arm" "arm64")
 
-vcpkg_download_distfile(ARCHIVE
-    URLS "https://downloads.sourceforge.net/project/gsoap2/gsoap-2.8/gsoap_2.8.102.zip"
-    FILENAME "gsoap_2.8.102.zip"
-    SHA512 3cff65605b15f820c9d56e32575231fb6fb89927bafc1db85ac1f879acd8496d6f38b558e994d17cce475beae0976d5fafcff7f22b28cdfbec8b7ec4b08bcbe7
-)
-
-vcpkg_extract_source_archive_ex(
+vcpkg_from_sourceforge(
     OUT_SOURCE_PATH SOURCE_PATH
-    ARCHIVE ${ARCHIVE}
-    PATCHES
-       "${CMAKE_CURRENT_LIST_DIR}/fix-build-in-windows.patch"
+    REPO gsoap2
+    REF gsoap-2.8
+    FILENAME "gsoap_2.8.111.zip"
+    SHA512 9cc7f0252f82ec18d19784aba2d913e70620fc09955d148a31e2c89bba4915d20a6b592bd7b6a747f89dc3ab17b2bc542d672933fa1a3acbf59bc3d1f49fe31b
+    PATCHES fix-build-in-windows.patch
 )
 
 set(BUILD_ARCH "Win32")
@@ -46,6 +42,9 @@ file(COPY ${SOURCE_PATH}/gsoap/stdsoap2.h ${SOURCE_PATH}/gsoap/stdsoap2.c ${SOUR
 
 # Handle import files
 file(COPY ${SOURCE_PATH}/gsoap/import DESTINATION ${CURRENT_PACKAGES_DIR}/share/${PORT})
+
+# Handle custom files
+file(COPY ${SOURCE_PATH}/gsoap/custom DESTINATION ${CURRENT_PACKAGES_DIR}/share/${PORT})
 
 # Handle plugin files
 file(COPY ${SOURCE_PATH}/gsoap/plugin DESTINATION ${CURRENT_PACKAGES_DIR}/share/${PORT})
