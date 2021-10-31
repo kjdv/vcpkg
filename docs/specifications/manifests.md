@@ -49,7 +49,7 @@ CMake).
 
 The specification uses definitions from the [Definitions](#definitions) section in order
 to specify the shape of a value. Note that any object may contain any directives, written as
-a field key that starts with a `$`; these directive shall be ignored by `vcpkg`. Common
+a field key that starts with a `$`; these directives shall be ignored by `vcpkg`. Common
 directives may include `"$schema"`, `"$comment"`, `"$reason"`.
 
 A manifest must be a top-level object, and must have at least:
@@ -130,7 +130,7 @@ There will be two "modes" for vcpkg from this point forward: "classic", and "man
 The former will act exactly like the existing vcpkg workflow, so as to avoid breaking
 anyone. The latter will be the mode only when the user either:
 
-* Passes `--manifest-root-dir=<directory>` (initially, `x-manifest-root-dir`)
+* Passes `--manifest-root=<directory>` (initially, `x-manifest-root`)
 * Runs `vcpkg` in a directory that contains a file named `vcpkg.json`, or in a
   child directory of a directory containing `vcpkg.json`.
   * For this, initially vcpkg will warn that the behavior will change in the
