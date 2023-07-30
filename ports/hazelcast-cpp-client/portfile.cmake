@@ -1,8 +1,8 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO hazelcast/hazelcast-cpp-client
-    REF v4.2.0
-    SHA512 7dc91968c95930d966c9bf005c0756c3702b9f27d96543bd6beffd20be36f9d9840676be2e9473b68f5cfa420c39c6feef0d7538270c798633aad5d0714df56c
+    REF "v${VERSION}"
+    SHA512 9f6668fe88b1e10e1c91fea26acb12efab464f652d9008e43b06d92413a7bc4b66cd0ef00c0643ddf12c8d29b099cd767209a096e609fa214233dcc3288d194e
     HEAD_REF master
 )
 
@@ -13,19 +13,18 @@ vcpkg_check_features(
         example BUILD_EXAMPLES
 )
 
-vcpkg_configure_cmake(
+vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}"
-    PREFER_NINJA
     OPTIONS ${FEATURE_OPTIONS}
 )
 
-vcpkg_install_cmake()
+vcpkg_cmake_install()
 
 vcpkg_copy_pdbs()
 
 file(REMOVE_RECURSE ${CURRENT_PACKAGES_DIR}/debug/include)
 
-vcpkg_fixup_cmake_targets(CONFIG_PATH lib/cmake/hazelcast-cpp-client)
+vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/hazelcast-cpp-client)
 
 # Handle copyright
 file(INSTALL ${SOURCE_PATH}/LICENSE DESTINATION ${CURRENT_PACKAGES_DIR}/share/${PORT} RENAME copyright)

@@ -3,14 +3,16 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO boostorg/wave
-    REF boost-1.77.0
-    SHA512 d7b940086776a54ab2907277bbdc6be40b99dd358fde333802076d1a7e671aaf09326fb1a3742f9d23036666e34efc0c9c58b7a421edd93f6807e10a1886d880
+    REF boost-1.82.0
+    SHA512 598f7052b66f54d00949f59107ddbfa8a9fcca9ca5c7aa3c60b3d9611edd69797211a0a32d4048b1c78262ddade0e011c6bc01001b12c195950aa3d6ce6fb0d7
     HEAD_REF master
 )
 
-if(NOT DEFINED CURRENT_HOST_INSTALLED_DIR)
-    message(FATAL_ERROR "boost-wave requires a newer version of vcpkg in order to build.")
-endif()
+vcpkg_replace_string("${SOURCE_PATH}/build/Jamfile.v2"
+    "import ../../config/checks/config"
+    "import ../config/checks/config"
+)
+file(COPY "${CURRENT_INSTALLED_DIR}/share/boost-config/checks" DESTINATION "${SOURCE_PATH}/config")
 include(${CURRENT_HOST_INSTALLED_DIR}/share/boost-build/boost-modular-build.cmake)
 boost_modular_build(SOURCE_PATH ${SOURCE_PATH})
 include(${CURRENT_INSTALLED_DIR}/share/boost-vcpkg-helpers/boost-modular-headers.cmake)

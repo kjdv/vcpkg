@@ -1,11 +1,9 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO symengine/symengine
-    REF v0.7.0
-    SHA512 fd3198bc4a05ca2b9b8a58039cc21af65b44457f295362a1a9b8dbf9c6e3df5186c0c84b289bc9fe85d9efd5ac1a683f6b7ba9a661fb6d913d6ceefb14ee2348
+    REF "v${VERSION}"
+    SHA512 e73f62a87d20b676cac66ce82ac93308b688ed2ac18ebdb6884bae1ae66868e1033e33908e797f86a1906f91b975e8607a02e8932db8550a677f6b41373b7934
     HEAD_REF master
-    PATCHES
-        fix-build.patch
 )
 
 vcpkg_check_features(
@@ -15,6 +13,7 @@ vcpkg_check_features(
         flint WITH_FLINT 
         mpfr WITH_MPFR
         tcmalloc WITH_TCMALLOC
+        llvm WITH_LLVM
 )
 
 if(integer-class-boostmp IN_LIST FEATURES)
@@ -34,9 +33,8 @@ endif()
 
 string(COMPARE EQUAL "${VCPKG_LIBRARY_LINKAGE}" "static" MSVC_USE_MT)
 
-vcpkg_configure_cmake(
-    SOURCE_PATH ${SOURCE_PATH}
-    PREFER_NINJA
+vcpkg_cmake_configure(
+    SOURCE_PATH "${SOURCE_PATH}"
     OPTIONS
         -DINTEGER_CLASS=${INTEGER_CLASS}
         -DBUILD_BENCHMARKS=no
@@ -49,16 +47,23 @@ vcpkg_configure_cmake(
         ${FEATURE_OPTIONS}
 )
 
-vcpkg_install_cmake()
+vcpkg_cmake_install()
 
-if(EXISTS ${CURRENT_PACKAGES_DIR}/CMake)
-    vcpkg_fixup_cmake_targets(CONFIG_PATH CMake)
-elseif(EXISTS ${CURRENT_PACKAGES_DIR}/lib/cmake/${PORT})
-    vcpkg_fixup_cmake_targets(CONFIG_PATH lib/cmake/${PORT})
+if(EXISTS "${CURRENT_PACKAGES_DIR}/CMake")
+    vcpkg_cmake_config_fixup(CONFIG_PATH CMake)
+elseif(EXISTS "${CURRENT_PACKAGES_DIR}/lib/cmake/${PORT}")
+    vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/${PORT})
 endif()
 
 vcpkg_copy_pdbs()
 
-file(REMOVE_RECURSE ${CURRENT_PACKAGES_DIR}/debug/include)
+file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include")
+file(REMOVE "${CURRENT_PACKAGES_DIR}/include/symengine/symengine_config_cling.h")
 
-file(INSTALL ${SOURCE_PATH}/LICENSE DESTINATION ${CURRENT_PACKAGES_DIR}/share/${PORT} RENAME copyright)
+vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/share/symengine/SymEngineConfig.cmake" "${CURRENT_BUILDTREES_DIR}" "") # not used, inside if (False)
+vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/share/symengine/SymEngineConfig.cmake"
+    [[${SYMENGINE_CMAKE_DIR}/../../../include]]
+    [[${SYMENGINE_CMAKE_DIR}/../../include]]
+)
+
+file(INSTALL "${SOURCE_PATH}/LICENSE" DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}" RENAME copyright)

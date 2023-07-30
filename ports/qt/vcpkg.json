@@ -1,9 +1,24 @@
 {
   "name": "qt",
-  "version-semver": "6.2.0",
+  "version": "6.5.2",
   "description": "Qt",
   "homepage": "https://www.qt.io/",
+  "license": null,
   "dependencies": [
+    {
+      "name": "qt3d",
+      "default-features": false,
+      "features": [
+        "animation",
+        "assimp",
+        "extras",
+        "input",
+        "logic",
+        "qml",
+        "render",
+        "rhi"
+      ]
+    },
     {
       "name": "qt5compat",
       "default-features": false,
@@ -14,6 +29,7 @@
         "textcodec"
       ]
     },
+    "qtapplicationmanager",
     {
       "name": "qtbase",
       "default-features": false
@@ -30,6 +46,11 @@
     "qtconnectivity",
     "qtdatavis3d",
     "qtdeclarative",
+    {
+      "name": "qtdeviceutilities",
+      "default-features": false,
+      "platform": "linux"
+    },
     "qtdoc",
     {
       "name": "qtimageformats",
@@ -40,14 +61,8 @@
         "webp"
       ]
     },
-    {
-      "name": "qtlocation",
-      "default-features": false,
-      "features": [
-        "nmea",
-        "qml"
-      ]
-    },
+    "qtinterfaceframework",
+    "qtlanguageserver",
     {
       "name": "qtlottie",
       "default-features": false,
@@ -60,14 +75,37 @@
       "name": "qtmultimedia",
       "default-features": false,
       "features": [
-        "gstreamer",
         "qml",
         "widgets"
       ]
     },
+    {
+      "name": "qtmultimedia",
+      "default-features": false,
+      "features": [
+        "gstreamer"
+      ],
+      "platform": "!windows"
+    },
+    {
+      "name": "qtmultimedia",
+      "default-features": false,
+      "features": [
+        "ffmpeg",
+        "gstreamer"
+      ],
+      "platform": "windows & !static"
+    },
     "qtnetworkauth",
     {
       "name": "qtopcua",
+      "features": [
+        "qml"
+      ]
+    },
+    {
+      "name": "qtpositioning",
+      "default-features": false,
       "features": [
         "qml"
       ]
@@ -101,6 +139,11 @@
     "qtserialbus",
     "qtserialport",
     "qtshadertools",
+    {
+      "name": "qtspeech",
+      "default-features": false,
+      "platform": "!(windows & x86)"
+    },
     "qtsvg",
     {
       "name": "qttools",
@@ -127,7 +170,8 @@
         "geolocation",
         "spellchecker",
         "webchannel"
-      ]
+      ],
+      "platform": "!static & !(windows & arm)"
     },
     {
       "name": "qtwebsockets",
@@ -138,11 +182,15 @@
     },
     {
       "name": "qtwebview",
+      "default-features": false
+    },
+    {
+      "name": "qtwebview",
       "default-features": false,
       "features": [
-        "qml",
         "webengine"
-      ]
+      ],
+      "platform": "!static & !(windows & arm)"
     }
   ],
   "default-features": [

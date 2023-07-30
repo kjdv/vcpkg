@@ -1,25 +1,25 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO libsigcplusplus/libsigcplusplus
-    REF 7e20b36bddab74faed39aa3768d07fd372fce596
-    SHA512 6220a3974ee90afb5028a5b60ffcbff353fffbbfcf1570d8db05b6d91604324a73badcb17c73c852d6c5265e2b31e1c2de1b3ea20c0e60ecdb17ce90c9ca40bd
+    REF "${VERSION}"
+    SHA512 8b80f0988daea4eb2c827be57de21167f54a9bf3e9704d64d17d12aef064d8ad87d00f95ce4b5add7666452561c5ca42aa45cf677e54068974a4ea813af3b235
     HEAD_REF master
-    PATCHES 
+    PATCHES
         disable_tests_enable_static_build.patch
-        version.patch
-        fix-usage-in-static-build.patch
+        fix-shared-windows-build.patch
+        fix_include_path.patch
 )
 
-vcpkg_configure_cmake(
-    SOURCE_PATH ${SOURCE_PATH}
+vcpkg_cmake_configure(
+    SOURCE_PATH "${SOURCE_PATH}"
 )
-vcpkg_install_cmake()
+vcpkg_cmake_install()
 vcpkg_copy_pdbs()
 vcpkg_fixup_pkgconfig()
-vcpkg_fixup_cmake_targets(CONFIG_PATH lib/cmake/sigc++-3 TARGET_PATH share/sigc++-3)
+vcpkg_cmake_config_fixup(PACKAGE_NAME sigc++-3 CONFIG_PATH lib/cmake/sigc++-3)
 
 if(VCPKG_LIBRARY_LINKAGE STREQUAL "dynamic")
-    vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/lib/sigc++-3.0/include/sigc++config.h" "ifdef BUILD_SHARED" "if 1")
+    vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/include/sigc++config.h" "ifdef BUILD_SHARED" "if 1")
 endif()
 
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include")

@@ -3,38 +3,39 @@ vcpkg_check_linkage(ONLY_STATIC_LIBRARY)
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO facebookincubator/fizz
-    REF v2021.06.14.00
-    SHA512 ff55f933d55031128b5355707fd025649ad90d261d91ec5f9d793433a77e63d3c2527a7f0111d6a3151667ab29f4117f96a505bcb80c1a4a99bd60346f05f4de
+    REF "v${VERSION}"
+    SHA512 c7140b61529ee024e3c99e65d175acb8277fa7bc0090019188481b57c5253d8f5b96a01c28df4a1d00bae67e1f9079d409c2a7f526e933c7fe2f3c2a12fd92ac
     HEAD_REF master
     PATCHES
-        fix-zlib.patch
+        0001-fix-libsodium.patch
+        0002-fix-libevent.patch
+        0003-fix-deps.patch
 )
 
 # Prefer installed config files
 file(REMOVE
-    ${SOURCE_PATH}/fizz/cmake/FindGflags.cmake
-    ${SOURCE_PATH}/fizz/cmake/FindGlog.cmake
+    "${SOURCE_PATH}/fizz/cmake/FindGMock.cmake"
+    "${SOURCE_PATH}/fizz/cmake/FindGflags.cmake"
+    "${SOURCE_PATH}/fizz/cmake/FindGlog.cmake"
+    "${SOURCE_PATH}/fizz/cmake/FindLibevent.cmake"
 )
 
-vcpkg_configure_cmake(
+vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}/fizz"
-    PREFER_NINJA
     OPTIONS
         -DBUILD_TESTS=OFF
         -DBUILD_EXAMPLES=OFF
         -DINCLUDE_INSTALL_DIR:STRING=include
 )
 
-vcpkg_install_cmake()
-vcpkg_fixup_cmake_targets(CONFIG_PATH lib/cmake/fizz)
+vcpkg_cmake_install()
+vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/fizz)
 vcpkg_copy_pdbs()
 
 vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/share/fizz/fizz-config.cmake" "lib/cmake/fizz" "share/fizz")
 
-file(REMOVE_RECURSE
-    ${CURRENT_PACKAGES_DIR}/debug/include
-)
+file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include")
 
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/include/fizz/tool/test" "${CURRENT_PACKAGES_DIR}/include/fizz/util/test")
 
-file(INSTALL ${SOURCE_PATH}/LICENSE DESTINATION ${CURRENT_PACKAGES_DIR}/share/${PORT} RENAME copyright)
+vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/LICENSE")

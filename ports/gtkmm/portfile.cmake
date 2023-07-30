@@ -1,13 +1,12 @@
-vcpkg_fail_port_install(ON_TARGET "uwp")
-
+string(REGEX MATCH "^([0-9]*[.][0-9]*)" GTKMM_MAJOR_MINOR "${VERSION}")
 vcpkg_download_distfile(ARCHIVE
-    URLS "https://ftp.gnome.org/pub/GNOME/sources/gtkmm/4.0/gtkmm-4.0.1.tar.xz"
-    FILENAME "gtkmm-4.0.1.tar.xz"
-    SHA512 5b9f9f32fe85ee7a281c9d3d3b266b1265924926058d778f48302808812cad7047c09440c317497fa0069816984d3556868a703a5488e0bfd8cd26fc64afcb1b
+    URLS "https://ftp.gnome.org/pub/GNOME/sources/gtkmm/${GTKMM_MAJOR_MINOR}/gtkmm-${VERSION}.tar.xz"
+    FILENAME "gtkmm-${VERSION}.tar.xz"
+    SHA512 ee40cce37c34814884ffc06e614013d23fa31cac51ea9d98ea5689a08acc2ff58bb2ca80ba822d6fe3c0f3bdcb9ce2596ede3c05c69a702b524c4e38afc3d9ab
 )
 
-vcpkg_extract_source_archive_ex(
-    OUT_SOURCE_PATH SOURCE_PATH
+vcpkg_extract_source_archive(
+    SOURCE_PATH
     ARCHIVE ${ARCHIVE}
 )
 
@@ -17,8 +16,8 @@ vcpkg_configure_meson(
         -Dmsvc14x-parallel-installable=false # Use separate DLL and LIB filenames for Visual Studio 2017 and 2019
         -Dbuild-tests=false
         -Dbuild-demos=false
-    ADDITIONAL_NATIVE_BINARIES glib-compile-resources='${CURRENT_HOST_INSTALLED_DIR}/tools/glib/glib-compile-resources${VCPKG_HOST_EXECUTABLE_SUFFIX}'
-    ADDITIONAL_CROSS_BINARIES  glib-compile-resources='${CURRENT_HOST_INSTALLED_DIR}/tools/glib/glib-compile-resources${VCPKG_HOST_EXECUTABLE_SUFFIX}'
+    ADDITIONAL_BINARIES
+        glib-compile-resources='${CURRENT_HOST_INSTALLED_DIR}/tools/glib/glib-compile-resources${VCPKG_HOST_EXECUTABLE_SUFFIX}'
 )
 
 vcpkg_install_meson()

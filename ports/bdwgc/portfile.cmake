@@ -1,28 +1,26 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO ivmai/bdwgc
-    REF 59f15da55961928b05972d386054fb980bdc8cf0 # v8.2.0-20211013
-    SHA512 f6b91f0ad9691d02b04d609d06b9d9aaf30a6e0bb93a5985f9e178128bc3a0b180a3366ecddafab43697fb28c6d0d5e814f99a7bbacad8da4550d3b6ea92bef6
+    REF v8.2.4
+    SHA512 323d65a867f95cfbf5ecb0ff57e8dede0282cffd0d75153526e50282fe019b2e9b3a0cf16d551654832bd4f01ce8f8461590bfc5f4ea9b5eed80384321d369d7
     HEAD_REF master
 )
 
-vcpkg_configure_cmake(
+vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}"
-    PREFER_NINJA
     OPTIONS
-        -Dbuild_cord=OFF
-        -Denable_threads=OFF # TODO: add libatomic_ops package and turn on threads
-    OPTIONS_DEBUG
-        -Dinstall_headers=OFF
+        -Denable_cplusplus=ON
+        -Denable_docs=OFF
+        -DCFLAGS_EXTRA=-I${CURRENT_INSTALLED_DIR}/include # for libatomic_ops
 )
 
-vcpkg_install_cmake()
-vcpkg_fixup_cmake_targets(CONFIG_PATH lib/cmake/bdwgc)
+vcpkg_cmake_install()
+vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/bdwgc)
 vcpkg_copy_pdbs()
 
-# Handle copyright
-file(INSTALL "${SOURCE_PATH}/README.QUICK" DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}" RENAME copyright)
-
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/share")
+file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include")
 
 vcpkg_fixup_pkgconfig()
+
+file(INSTALL "${SOURCE_PATH}/README.QUICK" DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}" RENAME copyright)

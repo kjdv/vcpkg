@@ -1,14 +1,11 @@
 # test application for this port: https://github.com/mathisloge/mapnik-vcpkg-test
 
-vcpkg_check_linkage(ONLY_DYNAMIC_LIBRARY)
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO mapnik/mapnik
-    REF 4695c42b51bc633e10b15c30ba580093ca0dda4f
-    SHA512 c0e6c77b6c859ac03a2169d8f71ee2d68e6b76dd0295a0656f278f31ccf531b02f2a5bc5cce7e78177872fba2e5dda95dc00685d6157043fa3a246a072ab7075
+    REF 123232ffde565af38afd06fe3e8edd9bfdce93bc
+    SHA512 b940312688fcece8bb52b8b687fcc60eaac159d4737966eacacbafbde6fbd3245f9acf170d55a664a781908282cb21347bd4b79bd08b8ab2461270ef453b10c5
     HEAD_REF master
-    PATCHES
-        cairo-find-fix.patch
 )
 
 vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
@@ -43,23 +40,31 @@ vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
         "utility-svg2png"           BUILD_UTILITY_SVG2PNG
 )
 
+if (VCPKG_CRT_LINKAGE STREQUAL dynamic)
+    set(BUILD_SHARED_CRT ON)
+else()
+    set(BUILD_SHARED_CRT OFF)
+endif()
+vcpkg_find_acquire_program(PKGCONFIG)
+
 vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}"
     OPTIONS   
         ${FEATURE_OPTIONS}
-        -DCOPY_LIBRARIES_FOR_EXECUTABLES=OFF
-        -DCOPY_FONTS_AND_PLUGINS_FOR_EXECUTABLES=OFF
+        -DBUILD_SHARED_CRT=${BUILD_SHARED_CRT}
         -DINSTALL_DEPENDENCIES=OFF
-        -DBUILD_TEST=OFF
+        -DBUILD_TESTING=OFF
         -DBUILD_BENCHMARK=OFF
         -DBUILD_DEMO_CPP=OFF
         -DUSE_EXTERNAL_MAPBOX_GEOMETRY=ON
         -DUSE_EXTERNAL_MAPBOX_POLYLABEL=ON
         -DUSE_EXTERNAL_MAPBOX_PROTOZERO=ON
         -DUSE_EXTERNAL_MAPBOX_VARIANT=ON
+        -DBOOST_REGEX_HAS_ICU=ON
         -DMAPNIK_CMAKE_DIR=share/mapnik/cmake
         -DFONTS_INSTALL_DIR=share/mapnik/fonts
         -DMAPNIK_PKGCONF_DIR=lib/pkgconfig
+        -DPKG_CONFIG_EXECUTABLE="${PKGCONFIG}"
 )
 
 vcpkg_cmake_install()

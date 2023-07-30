@@ -1,24 +1,30 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO mpusz/units
-    REF 33ad51311b835efb7f7767473f971c02a3140073
-    SHA512 18c9a4bb1812d7ab59e86d3eef5f62aa760c8f78eac81086bd3b25f7e2d359f2fba71b0298cf91ecb31dbe13846f2e5ce75133b0db534020102b788dd1c1a1da
+    REF "v${VERSION}"
+    SHA512 6369c886629955c6457911b98a702c29bacce58e9049e1da700055a3f8b1981cce4f545c1d09550ec1c57f8805f7fc1f0198118950a14b2a7b797dd437ed72df
     PATCHES
-        cmake.patch
-        config.patch
+      config.patch
 )
 
-vcpkg_configure_cmake(
-    SOURCE_PATH ${SOURCE_PATH}
-    PREFER_NINJA
+set(USE_LIBFMT OFF)
+if ("use-libfmt" IN_LIST FEATURES)
+    set(USE_LIBFMT ON)
+endif()
+
+vcpkg_cmake_configure(
+    SOURCE_PATH "${SOURCE_PATH}/src"
+    OPTIONS
+      -DUNITS_USE_LIBFMT=${USE_LIBFMT}
 )
 
-vcpkg_install_cmake()
+vcpkg_cmake_install()
 
-vcpkg_fixup_cmake_targets(CONFIG_PATH lib/cmake/${PORT})
+vcpkg_cmake_config_fixup(CONFIG_PATH "lib/cmake/${PORT}")
+
 # Handle copyright/readme/package files
-file(INSTALL ${SOURCE_PATH}/LICENSE.md DESTINATION ${CURRENT_PACKAGES_DIR}/share/${PORT} RENAME copyright)
-file(INSTALL ${SOURCE_PATH}/README.md DESTINATION ${CURRENT_PACKAGES_DIR}/share/${PORT})
+vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/LICENSE.md")
+file(INSTALL "${SOURCE_PATH}/README.md" DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}")
 
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug"
                     "${CURRENT_PACKAGES_DIR}/lib") # Header only

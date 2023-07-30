@@ -1,29 +1,26 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO AcademySoftwareFoundation/openvdb
-    REF ea786c46b7a1b5158789293d9b148b379fc9914c # v8.1.0
-    SHA512 3c4ab3db35b3eb019149ac455f0c7a262081e9866b7e49eaba05424bf837debccf0c987c2555d3c91a2cff2d1ba4b41862f544fd4684558f3a319616ef3c9eb3
-    HEAD_REF master
+    REF be0e7a78861d2b7d9643f7a0cab04f3ab5951686 # v10.0.0
+    SHA512 92301bf675d700fedb0a2b3c4653158eeda6105e70623e5e4bda15d73391427cf0295a0426204888e2fe062847025542717bff34ceb923e51cffa1721e9d4105
     PATCHES
         0003-fix-cmake.patch
 )
 
-file(REMOVE ${SOURCE_PATH}/cmake/FindTBB.cmake)
-file(REMOVE ${SOURCE_PATH}/cmake/FindIlmBase.cmake)
-file(REMOVE ${SOURCE_PATH}/cmake/FindBlosc.cmake)
-file(REMOVE ${SOURCE_PATH}/cmake/FindOpenEXR.cmake)
+file(REMOVE "${SOURCE_PATH}/cmake/FindTBB.cmake")
+file(REMOVE "${SOURCE_PATH}/cmake/FindIlmBase.cmake")
+file(REMOVE "${SOURCE_PATH}/cmake/FindBlosc.cmake")
+file(REMOVE "${SOURCE_PATH}/cmake/FindOpenEXR.cmake")
 
 string(COMPARE EQUAL "${VCPKG_LIBRARY_LINKAGE}" "static" OPENVDB_STATIC)
 string(COMPARE EQUAL "${VCPKG_LIBRARY_LINKAGE}" "dynamic" OPENVDB_SHARED)
 
-set(OPENVDB_BUILD_TOOLS OFF)
-if ("tools" IN_LIST FEATURES)
-  if (VCPKG_LIBRARY_LINKAGE STREQUAL dynamic)
-    set(OPENVDB_BUILD_TOOLS ON)
-  else()
-    message(FATAL_ERROR "Unable to build tools if static libraries are required")
-  endif()
-endif()
+vcpkg_check_features(
+    OUT_FEATURE_OPTIONS FEATURE_OPTIONS
+    FEATURES
+        "tools" OPENVDB_BUILD_TOOLS
+)
+
 
 if ("ax" IN_LIST FEATURES)
   if(NOT VCPKG_TARGET_IS_WINDOWS)
@@ -34,12 +31,14 @@ if ("ax" IN_LIST FEATURES)
 endif()
 
 vcpkg_cmake_configure(
-    SOURCE_PATH ${SOURCE_PATH}
+    SOURCE_PATH "${SOURCE_PATH}"
     OPTIONS
         -DOPENVDB_BUILD_UNITTESTS=OFF
         -DOPENVDB_BUILD_PYTHON_MODULE=OFF
         -DOPENVDB_ENABLE_3_ABI_COMPATIBLE=OFF
+        -DUSE_EXR=ON
         -DUSE_GLFW3=ON
+        -DUSE_IMATH_HALF=ON
         -DOPENVDB_CORE_STATIC=${OPENVDB_STATIC}
         -DOPENVDB_CORE_SHARED=${OPENVDB_SHARED}
         -DOPENVDB_BUILD_VDB_PRINT=${OPENVDB_BUILD_TOOLS}

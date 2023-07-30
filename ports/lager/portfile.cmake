@@ -1,8 +1,8 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO arximboldi/lager
-    REF 5924508df1e08752274404818c460c80f0666bb8
-    SHA512 ee186b82dd1d729454c61207b48fb80ac8a861511ff501fab499aff5d3ba123ca669f89bdbbd37f120af6dc11a651ba6c163250b5ca94e6290657a35870618d7
+    REF 2016df38be90ee176bcb73ea414be2318bc1ef31
+    SHA512 07d9f2cf128ad2e751abbfaa03969524ffba785ac2696e6b94ee8e28166fc3ab427de2fc6a98eba50d2f936879b9e878a011c3ba9a25ba39109e7939d39c4902
     HEAD_REF master
 )
 
@@ -22,6 +22,8 @@ vcpkg_cmake_configure(
 
 vcpkg_cmake_install()
 vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/Lager)
+
+vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/include/lager/resources_path.hpp" "${CURRENT_PACKAGES_DIR}" ".")
 
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug" "${CURRENT_PACKAGES_DIR}/lib")
 file(INSTALL "${SOURCE_PATH}/LICENSE" DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}" RENAME copyright)

@@ -1,12 +1,13 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO KDE/extra-cmake-modules
-    REF v5.84.0
-    SHA512 d49397bcf0d49a95c86c9d9a4e653015ee8b3ef1261b2842439bba7ff3363ac06351fa2df4035c2cb36397d2fc64375a14966ada29f231df51ba26d8e196d6ef
+    REF v5.98.0
+    SHA512 355bf2010dd4c736981d0f708ab7245c0925104e19da01acee0482494f815088e5d7aed9aa968251f13c2c5b8cbfd67dc8bb147dec46050fea0881c00f456d9d
     HEAD_REF master
     PATCHES
-        fix_canberra.patch
-        fix_python_version.patch # Remove on next release
+        fix_canberra.patch         # https://invent.kde.org/frameworks/extra-cmake-modules/-/merge_requests/187
+        fix_libmount.patch         # https://invent.kde.org/frameworks/extra-cmake-modules/-/merge_requests/200
+        fix_generateqmltypes.patch # https://invent.kde.org/frameworks/extra-cmake-modules/-/merge_requests/201
 )
 
 vcpkg_cmake_configure(
@@ -29,3 +30,4 @@ file(INSTALL "${SOURCE_PATH}/COPYING-CMAKE-SCRIPTS" DESTINATION "${CURRENT_PACKA
 
 # Allow empty include directory
 set(VCPKG_POLICY_EMPTY_INCLUDE_FOLDER enabled)
+

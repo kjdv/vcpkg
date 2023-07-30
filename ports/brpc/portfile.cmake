@@ -1,34 +1,32 @@
-vcpkg_fail_port_install(ON_TARGET "windows")
-
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO apache/incubator-brpc
-    REF 1d6510aa50075cade5ed539ee09a11a1b8d7f990 # 0.9.7
-    SHA512 9c9dbe2a202e58586010c56634bd371f6a9e3ff0d8c5341abbabd1f1dd204a3aec5e89061fa326b4fc8ae7202f9fc33f93a5acd845d18dab3915a3e2b81cbaf3
+    REF "${VERSION}"
+    SHA512 0d3693ceff19952623511381d2df3ab3d17e725c0679154ce36f0cf52d1d4b46ad04699c4bacd0a906bcef33d19921fb5e1193a78218b6010b4c35d07ad62563
     HEAD_REF master
     PATCHES
-        fix_boost_ptr.patch
-        fix_thrift.patch
-        fix-protobuf-deprecated.patch
+        fix-build.patch
+        fix-boost-ptr.patch
 )
 
-vcpkg_configure_cmake(
-    SOURCE_PATH ${SOURCE_PATH}
-    PREFER_NINJA
+vcpkg_cmake_configure(
+    SOURCE_PATH "${SOURCE_PATH}"
+    DISABLE_PARALLEL_CONFIGURE
     OPTIONS
+        -DBUILD_BRPC_TOOLS=OFF
         -DWITH_THRIFT=ON
-        -DWITH_MESALINK=OFF
         -DWITH_GLOG=ON
+        -DDOWNLOAD_GTEST=OFF
 )
 
-vcpkg_install_cmake()
+vcpkg_cmake_install()
+vcpkg_cmake_config_fixup(PACKAGE_NAME unofficial-brpc CONFIG_PATH share/unofficial-brpc)
 
-file(REMOVE_RECURSE ${CURRENT_PACKAGES_DIR}/debug/include)
-file(REMOVE_RECURSE ${CURRENT_PACKAGES_DIR}/debug/share)
+file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include")
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/include/butil/third_party/superfasthash")
 
 vcpkg_copy_pdbs()
 
-file(INSTALL ${SOURCE_PATH}/LICENSE DESTINATION ${CURRENT_PACKAGES_DIR}/share/${PORT} RENAME copyright)
+file(INSTALL "${SOURCE_PATH}/LICENSE" DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}" RENAME copyright)
 
 vcpkg_fixup_pkgconfig()

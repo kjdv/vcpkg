@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param (
     $libraries = @(),
-    $version = "1.77.0",
+    $version = "1.82.0",
     $portsDir = $null
 )
 
@@ -22,16 +22,24 @@ else {
 }
 
 # Clear this array when moving to a new boost version
+$defaultPortVersion = 2
 $portVersions = @{
-    #e.g. "boost-asio" = 1;
-    "boost"                      = 2;
-    "boost-config"               = 2;
-    "boost-gil"                  = 1;
-    "boost-iostreams"            = 1;
-    "boost-modular-build-helper" = 3;
-    "boost-odeint"               = 1;
-    "boost-python"               = 1;
-    "boost-process"              = 2;
+    "boost-atomic" = 3;
+    "boost-modular-build-helper" = 4;
+    "boost-ublas" = 3;
+}
+
+function Get-PortVersion {
+    param (
+        [string]$PortName
+    )
+
+    $nonDefault = $portVersions[$PortName]
+    if ($nonDefault -ne $null) {
+        return $nonDefault
+    }
+
+    return $defaultPortVersion
 }
 
 $portData = @{
@@ -44,54 +52,69 @@ $portData = @{
         }
     };
     "boost-asio"             = @{
-        "dependencies" = @("openssl");
-        "supports"     = "!emscripten"
+        "features" = @{
+            "ssl" = @{
+                "description"  = "Build with SSL support";
+                "dependencies" = @(@{ "name" = "openssl"; "platform" = "!emscripten" });
+            }
+        }
     };
     "boost-beast"            = @{ "supports" = "!emscripten" };
-    "boost-fiber"            = @{ "supports" = "!osx&!uwp&!arm&!emscripten" };
+    "boost-fiber"            = @{
+        "supports" = "!uwp & !arm & !emscripten";
+        "features" = @{
+            "numa" = @{
+                "description" = "Enable NUMA support";
+            }
+        }
+    };
     "boost-filesystem"       = @{ "supports" = "!uwp" };
     "boost-iostreams"        = @{
         "default-features" = @("bzip2", "lzma", "zlib", "zstd");
         "supports"         = "!uwp";
         "features"         = @{
             "bzip2" = @{
+                "description"  = "Support bzip2 filters";
                 "dependencies" = @("bzip2");
-                "description"  = "Support bzip2 filters"
             };
             "lzma"  = @{
+                "description"  = "Support LZMA/xz filters";
                 "dependencies" = @("liblzma");
-                "description"  = "Support LZMA/xz filters"
             };
             "zlib"  = @{
+                "description"  = "Support zlib filters";
                 "dependencies" = @("zlib");
-                "description"  = "Support zlib filters"
             };
             "zstd"  = @{
+                "description"  = "Support zstd filters";
                 "dependencies" = @("zstd");
-                "description"  = "Support zstd filters"
             };
         };
     };
-    "boost-context"          = @{ "supports" = "!uwp&!emscripten" };
-    "boost-stacktrace"       = @{ "supports" = "!uwp" };
-    "boost-coroutine"        = @{ "supports" = "!arm&!uwp&!emscripten" };
+    "boost-context"          = @{ "supports" = "!uwp & !emscripten" };
+    "boost-coroutine"        = @{ "supports" = "!(arm & windows) & !uwp & !emscripten" };
     "boost-coroutine2"       = @{ "supports" = "!emscripten" };
-    "boost-test"             = @{ "supports" = "!uwp" };
-    "boost-wave"             = @{ "supports" = "!uwp" };
-    "boost-log"              = @{ "supports" = "!uwp&!emscripten" };
+    "boost-log"              = @{ "supports" = "!uwp & !emscripten" };
     "boost-locale"           = @{
-        "dependencies" = @(@{ "name" = "libiconv"; "platform" = "!uwp&!windows&!mingw" });
+        "dependencies" = @(@{ "name" = "libiconv"; "platform" = "!uwp & !windows & !mingw" });
         "supports"     = "!uwp";
         "features"     = @{
             "icu" = @{
+                "description"  = "ICU backend for Boost.Locale";
                 "dependencies" = @("icu");
-                "description"  = "ICU backend for Boost.Locale"
             }
         }
     };
     "boost-mpi"              = @{
         "dependencies" = @("mpi");
         "supports"     = "!uwp";
+        "features"     = @{
+            "python3" = @{
+                "description"  = "Build Python3 bindings";
+                "supports"     = "!static";
+                "dependencies" = @(@{ "name" = "boost-python"; "features" = @( "python3" ); "platform" = "!uwp & !emscripten & !ios & !android" }, "python3");
+            }
+        }
     };
     "boost-graph-parallel"   = @{
         "dependencies" = @("mpi");
@@ -100,8 +123,8 @@ $portData = @{
     "boost-odeint"           = @{
         "features" = @{
             "mpi" = @{
+                "description"  = "Support parallelization with MPI";
                 "dependencies" = @("boost-mpi");
-                "description"  = "Support parallelization with MPI"
             }
         }
     };
@@ -109,26 +132,31 @@ $portData = @{
     "boost-process"          = @{ "supports" = "!emscripten" };
     "boost-python"           = @{
         "default-features" = @("python3");
-        "supports"         = "!uwp&!(arm&windows)&!emscripten";
+        "supports"         = "!uwp & !emscripten & !ios & !android";
         "features"         = @{
             "python2" = @{
+                "description"  = "Build with Python2 support";
+                "supports"     = "!(arm & windows)";
                 "dependencies" = @("python2");
-                "description"  = "Build with Python2 support"
             };
             "python3" = @{
+                "description"  = "Build with Python3 support";
                 "dependencies" = @("python3");
-                "description"  = "Build with Python3 support"
             }
         }
     };
+    "boost-random"           = @{ "supports" = "!uwp" };
     "boost-regex"            = @{
         "features" = @{
             "icu" = @{
+                "description"  = "ICU backend for Boost.Regex";
                 "dependencies" = @("icu");
-                "description"  = "ICU backend for Boost.Regex"
             }
         }
     }
+    "boost-stacktrace"       = @{ "supports" = "!uwp" };
+    "boost-test"             = @{ "supports" = "!uwp" };
+    "boost-wave"             = @{ "supports" = "!uwp" };
 }
 
 function GeneratePortName() {
@@ -151,24 +179,56 @@ function GeneratePortDependency() {
     }
 }
 
+
+function AddBoostVersionConstraints() {
+    param (
+        $Dependencies = @()
+    )
+
+    $updated_dependencies = @()
+    foreach ($dependency in $Dependencies) {
+        if ($dependency.Contains("name")) {
+            if ($dependency.name.StartsWith("boost")) {
+                $dependency["version>="] = $version
+            }
+        }
+        else {
+            if ($dependency.StartsWith("boost")) {
+                $dependency = @{
+                    "name"       = $dependency
+                    "version>="  = $version
+                }
+            }
+        }
+        $updated_dependencies += $dependency
+    }
+    $updated_dependencies
+}
+
 function GeneratePortManifest() {
     param (
         [string]$PortName,
         [string]$Homepage,
         [string]$Description,
+        [string]$License,
         $Dependencies = @()
     )
     $manifest = @{
-        "name"        = $PortName
-        "version"     = $version
-        "homepage"    = $Homepage
-        "description" = $Description
+        "`$comment"     = "Automatically generated by scripts/boost/generate-ports.ps1"
+        "name"          = $PortName
+        "version"       = $version
+        "homepage"      = $Homepage
+        "description"   = $Description
+    }
+    if ($License) {
+        $manifest["license"] += $License
     }
     if ($portData.Contains($PortName)) {
         $manifest += $portData[$PortName]
     }
-    if ($portVersions.Contains($PortName)) {
-        $manifest["port-version"] = $portVersions[$PortName]
+    $thisPortVersion = Get-PortVersion $PortName
+    if ($thisPortVersion -ne 0) {
+        $manifest["port-version"] = $thisPortVersion
     }
     if ($Dependencies.Count -gt 0) {
         $manifest["dependencies"] += $Dependencies
@@ -185,10 +245,21 @@ function GeneratePortManifest() {
                     $dep_name = $dependency
                 }
                 $manifest["dependencies"] = $manifest["dependencies"] `
-                | Where-Object { $_ -notmatch "$dep_name" } `
-                | Where-Object { $_.name -notmatch "$dep_name" }
+                | Where-Object {
+                    if ($_.Contains("name")) {
+                        $_.name -notmatch "$dep_name"
+                    } else {
+                        $_ -notmatch "$dep_name"
+                    }
+                }
             }
         }
+    }
+
+    # Add version constraints to boost dependencies
+    $manifest["dependencies"] = @(AddBoostVersionConstraints $manifest["dependencies"])
+    foreach ($feature in $manifest.features.Keys) {
+        $manifest.features.$feature["dependencies"] = @(AddBoostVersionConstraints $manifest.features.$feature["dependencies"])
     }
 
     $manifest | ConvertTo-Json -Depth 10 -Compress `
@@ -213,6 +284,7 @@ function GeneratePort() {
         -PortName $portName `
         -Homepage "https://github.com/boostorg/$Library" `
         -Description "Boost $Library module" `
+        -License "BSL-1.0" `
         -Dependencies $Dependencies
 
     $portfileLines = @(
@@ -258,9 +330,6 @@ function GeneratePort() {
 
     if ($NeedsBuild) {
         $portfileLines += @(
-            "if(NOT DEFINED CURRENT_HOST_INSTALLED_DIR)"
-            "    message(FATAL_ERROR `"$portName requires a newer version of vcpkg in order to build.`")"
-            "endif()"
             "include(`${CURRENT_HOST_INSTALLED_DIR}/share/boost-build/boost-modular-build.cmake)"
         )
         # b2-options.cmake contains port-specific build options
@@ -303,7 +372,7 @@ function GeneratePort() {
 
     $portfileLines += @("")
     Set-Content -LiteralPath "$portsDir/$portName/portfile.cmake" `
-        -Value "$($portfileLines -join "`r`n")" `
+        -Value "$($portfileLines -join "`n")" `
         -Encoding UTF8 `
         -NoNewline
 }
@@ -489,7 +558,7 @@ foreach ($library in $libraries) {
             elseif ($_ -eq "nondet_random.hpp") { "random" }
             elseif ($_ -match "cregex.hpp|regex_fwd.hpp") { "regex" }
             elseif ($_ -eq "archive") { "serialization" }
-            elseif ($_ -match "^signals$|last_value.hpp|signal.hpp|signals.hpp") { "signals" }
+            elseif ($_ -match "last_value.hpp|signal.hpp") { "signals" }
             elseif ($_ -match "enable_shared_from_this.hpp|intrusive_ptr.hpp|make_shared.hpp|make_unique.hpp|pointer_cast.hpp|pointer_to_other.hpp|scoped_array.hpp|scoped_ptr.hpp|shared_array.hpp|shared_ptr.hpp|weak_ptr.hpp") { "smart_ptr" }
             elseif ($_ -eq "cerrno.hpp") { "system" }
             elseif ($_ -eq "progress.hpp") { "timer" }
@@ -512,6 +581,7 @@ foreach ($library in $libraries) {
         # break unnecessary dependencies
         $deps = @($deps | ? {
             -not (
+                ($library -eq 'ublas' -and $_ -eq 'compute') -or # PR #29325
                 ($library -eq 'gil' -and $_ -eq 'filesystem') # PR #20575
             )
         })
@@ -547,6 +617,7 @@ if ($updateServicePorts) {
         -PortName "boost" `
         -Homepage "https://boost.org" `
         -Description "Peer-reviewed portable C++ source libraries" `
+        -License "BSL-1.0" `
         -Dependencies $boostPortDependencies
 
     Set-Content -LiteralPath "$portsDir/boost/portfile.cmake" `
@@ -557,21 +628,48 @@ if ($updateServicePorts) {
     # Generate manifest files for boost-uninstall
     GeneratePortManifest `
         -PortName "boost-uninstall" `
-        -Description "Internal vcpkg port used to uninstall Boost"
+        -Description "Internal vcpkg port used to uninstall Boost" `
+        -License "MIT"
 
     # Generate manifest files for boost-vcpkg-helpers
     GeneratePortManifest `
         -PortName "boost-vcpkg-helpers" `
         -Description "Internal vcpkg port used to modularize Boost" `
+        -License "MIT" `
         -Dependencies @("boost-uninstall")
 
     # Generate manifest files for boost-modular-build-helper
     GeneratePortManifest `
         -PortName "boost-modular-build-helper" `
         -Description "Internal vcpkg port used to build Boost libraries" `
+        -License "MIT" `
+        -Dependencies @("boost-uninstall", @{ name = "vcpkg-cmake"; host = $True }, @{ name = "vcpkg-cmake-get-vars"; host = $True })
+
+    # Generate manifest files for boost-build
+    GeneratePortManifest `
+        -PortName "boost-build" `
+        -Homepage "https://github.com/boostorg/build" `
+        -Description "Boost.Build" `
+        -License "BSL-1.0" `
         -Dependencies @("boost-uninstall")
 
-    # Update Boost version in boost-modular-build.cmake
-    $boost_modular_build = "$portsDir/boost-modular-build-helper/boost-modular-build.cmake"
-    (Get-Content -LiteralPath "$boost_modular_build") -replace "set\(BOOST_VERSION ([0-9\.]+)\)", "set(BOOST_VERSION $version)" | Set-Content -LiteralPath "$boost_modular_build"
+    # Update Boost version in CMake files
+    $files_with_boost_version = @(
+        "$portsDir/boost-build/portfile.cmake",
+        "$portsDir/boost-modular-build-helper/boost-modular-build.cmake",
+        "$portsDir/boost-vcpkg-helpers/portfile.cmake"
+    )
+    $files_with_boost_version | % {
+        $content = Get-Content -LiteralPath $_ `
+            -Encoding UTF8 `
+            -Raw
+        $content = $content -replace `
+            "set\(BOOST_VERSION [0-9\.a-zA-Z]+\)", `
+            "set(BOOST_VERSION $version)"
+
+        Set-Content -LiteralPath $_ `
+            -Value $content `
+            -Encoding UTF8 `
+            -NoNewline
+    }
 }

@@ -1,9 +1,9 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO simdjson/simdjson
-    REF v1.0.1
+    REF "v${VERSION}"
     HEAD_REF master
-    SHA512 ecf67b145f1269225483a64b5ff9de826a8124fbae60dec1e6fe99aa974a29e07037a9318ae2dfc657971695ffa5e4fbcdff4c855365c074971d34c69dd77561
+    SHA512 02723d05fe88cfc69c1ec3eef92ae9e7da169a99645992829d4e40a00edecb98e21593dc9e04aeb2959cbcdbb8f40bb464daef9eb26cf3bd344c39271f6add2e
 )
 
 vcpkg_check_features(
@@ -13,6 +13,7 @@ vcpkg_check_features(
         threads    SIMDJSON_ENABLE_THREADS
     INVERTED_FEATURES
         deprecated SIMDJSON_DISABLE_DEPRECATED_API
+        utf8-validation SIMDJSON_SKIPUTF8VALIDATION
 )
 
 string(COMPARE EQUAL "${VCPKG_LIBRARY_LINKAGE}" "static" SIMDJSON_BUILD_STATIC)
@@ -35,6 +36,8 @@ vcpkg_cmake_install()
 vcpkg_copy_pdbs()
 
 vcpkg_cmake_config_fixup(CONFIG_PATH "lib/cmake/${PORT}")
+
+vcpkg_fixup_pkgconfig()
 
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include" "${CURRENT_PACKAGES_DIR}/debug/share")
 

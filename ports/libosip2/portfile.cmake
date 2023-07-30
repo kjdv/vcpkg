@@ -11,15 +11,13 @@ if(VCPKG_TARGET_IS_WINDOWS)
     list(APPEND PATCHES fix-path-in-project.patch)
 endif()
 
-vcpkg_extract_source_archive_ex(
+vcpkg_extract_source_archive(
+    SOURCE_PATH
     ARCHIVE "${ARCHIVE}"
-    OUT_SOURCE_PATH SOURCE_PATH
     PATCHES ${PATCHES}
 )
 
 if(VCPKG_TARGET_IS_WINDOWS)
-    vcpkg_fail_port_install(ON_ARCH "arm" "arm64")
-
     # Use /Z7 rather than /Zi to avoid "fatal error C1090: PDB API call failed, error code '23': (0x00000006)"
     foreach(VCXPROJ IN ITEMS
         "${SOURCE_PATH}/platform/vsnet/osip2.vcxproj"

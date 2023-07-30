@@ -1,9 +1,10 @@
 {
   "name": "opencv4",
-  "version": "4.5.3",
-  "port-version": 3,
+  "version": "4.7.0",
+  "port-version": 6,
   "description": "computer vision library",
   "homepage": "https://github.com/opencv/opencv",
+  "license": "Apache-2.0",
   "dependencies": [
     {
       "name": "vcpkg-cmake",
@@ -13,15 +14,14 @@
       "name": "vcpkg-cmake-config",
       "host": true
     },
+    {
+      "name": "vcpkg-get-python-packages",
+      "host": true
+    },
     "zlib"
   ],
   "default-features": [
-    "dnn",
-    "jpeg",
-    "png",
-    "quirc",
-    "tiff",
-    "webp"
+    "default-features"
   ],
   "features": {
     "ade": {
@@ -35,11 +35,11 @@
       "dependencies": [
         {
           "name": "hdf5",
-          "platform": "!uwp & !(windows & (arm | arm64))"
+          "platform": "!uwp & !(windows & (arm | arm64)) & !ios"
         },
         {
           "name": "tesseract",
-          "platform": "!uwp & !(windows & (arm | arm64))"
+          "platform": "!uwp & !(windows & (arm | arm64)) & !ios"
         }
       ]
     },
@@ -69,10 +69,54 @@
         }
       ]
     },
+    "dc1394": {
+      "description": "Dc1394 support for opencv",
+      "dependencies": [
+        "libdc1394"
+      ]
+    },
+    "default-features": {
+      "description": "Platform-dependent default features",
+      "dependencies": [
+        {
+          "name": "opencv4",
+          "default-features": false,
+          "features": [
+            "dnn",
+            "jpeg",
+            "png",
+            "quirc",
+            "tiff",
+            "webp"
+          ]
+        },
+        {
+          "name": "opencv4",
+          "default-features": false,
+          "features": [
+            "gtk"
+          ],
+          "platform": "linux"
+        }
+      ]
+    },
     "dnn": {
       "description": "Enable dnn module",
       "dependencies": [
         "protobuf"
+      ]
+    },
+    "dnn-cuda": {
+      "description": "Build dnn module with CUDA support",
+      "dependencies": [
+        {
+          "name": "opencv4",
+          "default-features": false,
+          "features": [
+            "cudnn",
+            "dnn"
+          ]
+        }
       ]
     },
     "eigen": {
@@ -96,10 +140,45 @@
         }
       ]
     },
+    "freetype": {
+      "description": "Freetype support for opencv",
+      "dependencies": [
+        {
+          "name": "freetype",
+          "default-features": false
+        },
+        {
+          "name": "harfbuzz",
+          "default-features": false
+        }
+      ]
+    },
     "gdcm": {
       "description": "GDCM support for opencv",
       "dependencies": [
         "gdcm"
+      ]
+    },
+    "gstreamer": {
+      "description": "gstreamer support for opencv",
+      "dependencies": [
+        {
+          "name": "gstreamer",
+          "default-features": false,
+          "features": [
+            "plugins-base"
+          ]
+        }
+      ]
+    },
+    "gtk": {
+      "description": "GTK support for opencv",
+      "supports": "!windows & !osx & !ios & !android",
+      "dependencies": [
+        {
+          "name": "gtk3",
+          "default-features": false
+        }
       ]
     },
     "halide": {
@@ -177,12 +256,25 @@
         "libpng"
       ]
     },
+    "python": {
+      "description": "Python wrapper support for opencv",
+      "dependencies": [
+        "python3"
+      ]
+    },
     "qt": {
       "description": "Qt GUI support for opencv",
       "dependencies": [
+        "qt5compat",
         {
-          "name": "qt5-base",
-          "default-features": false
+          "name": "qtbase",
+          "default-features": false,
+          "features": [
+            "concurrent",
+            "gui",
+            "testlib",
+            "widgets"
+          ]
         }
       ]
     },

@@ -1,18 +1,19 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO stiffstream/restinio
-    REF 0052518f5692f8f051031e06d933b726191be97e # v.0.6.13
-    SHA512 e7474aa1cef4145fe2f02c52cf80fdaf6724da45a4f3d0f1f56fc188ac50ff29a3ac72ea0e4402dc7ad378d0b2acfcea30cf8a57d218c3f5eb55d3f0d83dad29
+    REF "v.${VERSION}"
+    SHA512 8a535ebcdfb53ef9f669bbd007d11b6d95bae87b1a8b8403556910e4904483bfcaeb88fa2ee5522c9bef048a9276cbdb1fa15ec62b5bd158fc585b0e84cf046b
+    PATCHES
+        fix-cmake-config.diff
+        fix-project.diff
 )
 
-vcpkg_configure_cmake(
-    SOURCE_PATH ${SOURCE_PATH}/vcpkg
-    PREFER_NINJA
+set(VCPKG_BUILD_TYPE release) # header-only
+vcpkg_cmake_configure(
+    SOURCE_PATH "${SOURCE_PATH}/vcpkg"
 )
+vcpkg_cmake_install()
+vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/restinio)
+file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/lib")
 
-vcpkg_install_cmake()
-vcpkg_fixup_cmake_targets(CONFIG_PATH lib/cmake/restinio)
-
-file(REMOVE_RECURSE ${CURRENT_PACKAGES_DIR}/lib ${CURRENT_PACKAGES_DIR}/debug)
-# Handle copyright
-file(INSTALL ${SOURCE_PATH}/LICENSE DESTINATION ${CURRENT_PACKAGES_DIR}/share/${PORT} RENAME copyright)
+vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/LICENSE")

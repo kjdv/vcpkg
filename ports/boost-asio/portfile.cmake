@@ -3,10 +3,12 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO boostorg/asio
-    REF boost-1.77.0
-    SHA512 b7387f03994ecb22c545ed162c9622676a806cb7434e29303a72ee91e776034626cc125271439e7fa5983c76c06a887472dc3843e2a8ffca3a6ff3caee763641
+    REF boost-1.82.0
+    SHA512 d54fd77ca7996da138b10408df1eae28bbcae0c6475467cc19837bf6f6624c38ad7f9e1eec87ceae27f516583b204fdbaeb04daad7cc28e6aeec02ab5f188731
     HEAD_REF master
-    PATCHES windows_alloca_header.patch
+    PATCHES
+        windows_alloca_header.patch
+        fix_coro_compile_error_msvc.patch #upstream PR: https://github.com/chriskohlhoff/asio/pull/1313
 )
 
 include(${CURRENT_INSTALLED_DIR}/share/boost-vcpkg-helpers/boost-modular-headers.cmake)

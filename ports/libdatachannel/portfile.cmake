@@ -1,12 +1,21 @@
+set(PATCHES fix-for-vcpkg.patch)
+
+if(VCPKG_TARGET_IS_UWP)
+    list(APPEND PATCHES uwp-warnings.patch)
+endif()
+
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO paullouisageneau/libdatachannel
-    REF 267fdc190bcd276aacf45e4cd5ab8a51541161e8 #v0.15.1
-    SHA512 333b1308b9f620326aa3b1af30aed8be2011c3a5a7d850e94476b8a14f696cef4cc815fda57e7a205cc264a077b7d1fa403ff1354364aae58651cdb0324c951b
+    REF "v${VERSION}"
+    SHA512 ede45221b8fb4ebc2a812f187372bc65da2a495311058e3b486ba7a2a584817ecdef286d956386a8635752786aebd5d0507bd84a84e484b9bf73ecd2dd92f918
     HEAD_REF master
     PATCHES
-        0001-fix-for-vcpkg.patch
+        ${PATCHES}
 )
+
+string(COMPARE EQUAL "${VCPKG_LIBRARY_LINKAGE}" "static" BUILD_STATIC)
+string(COMPARE EQUAL "${VCPKG_LIBRARY_LINKAGE}" "dynamic" BUILD_SHARED)
 
 vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
     FEATURES
@@ -21,8 +30,11 @@ vcpkg_cmake_configure(
     OPTIONS
         ${FEATURE_OPTIONS}
         -DUSE_SYSTEM_SRTP=ON
+        -DUSE_SYSTEM_JUICE=ON
         -DNO_EXAMPLES=ON
         -DNO_TESTS=ON
+        -DBUILD_STATIC_LIBS=${BUILD_STATIC}
+        -DBUILD_SHARED_LIBS=${BUILD_SHARED}
 )
 
 vcpkg_cmake_install()
@@ -40,4 +52,4 @@ ${DATACHANNEL_CONFIG}")
 
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include" "${CURRENT_PACKAGES_DIR}/debug/share")
 
-file(INSTALL "${SOURCE_PATH}/LICENSE" DESTINATION "${CURRENT_PACKAGES_DIR}/share/${PORT}" RENAME copyright)
+vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/LICENSE")

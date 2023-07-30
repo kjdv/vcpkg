@@ -1,22 +1,18 @@
-vcpkg_fail_port_install(ON_TARGET "uwp")
-
-set(CALCEPH_VERSION "3.5.0")
-set(CALCEPH_HASH 12bb269d846aab93799656919cd9ca5a995248fb806727ea95667374b9380ca8f52c57dc6a5930c6995c13749bff1459c430eb2908b1533a8804fcb6b95c3de9)
+set(CALCEPH_HASH 4e0b702494c9fc05f6a192671bccdc0f8002b5706cba4bd7ff50d9e8754203b4a78e3759ccc3003809123584c9bca1434411e111357852dbc58e4d1903c1879e)
 
 vcpkg_download_distfile(ARCHIVE
-    URLS "https://www.imcce.fr/content/medias/recherche/equipes/asd/calceph/calceph-${CALCEPH_VERSION}.tar.gz"
-    FILENAME "calceph-${CALCEPH_VERSION}.tar.gz"
+    URLS "https://www.imcce.fr/content/medias/recherche/equipes/asd/calceph/calceph-${VERSION}.tar.gz"
+    FILENAME "calceph-${VERSION}.tar.gz"
     SHA512 ${CALCEPH_HASH}
 )
 
-vcpkg_extract_source_archive_ex(
-    OUT_SOURCE_PATH SOURCE_PATH
+vcpkg_extract_source_archive(
+    SOURCE_PATH
     ARCHIVE ${ARCHIVE}
-    PATCHES makefilevc.patch
 )
 
 if (VCPKG_TARGET_IS_WINDOWS)
-    
+
     vcpkg_install_nmake(
         SOURCE_PATH "${SOURCE_PATH}"
         OPTIONS
@@ -29,7 +25,9 @@ if (VCPKG_TARGET_IS_WINDOWS)
     )
     file(INSTALL "${CURRENT_INSTALLED_DIR}/calceph/include/calceph.h" DESTINATION "${CURRENT_PACKAGES_DIR}/include")
     file(INSTALL "${CURRENT_INSTALLED_DIR}/calceph/lib/libcalceph.lib" DESTINATION "${CURRENT_PACKAGES_DIR}/lib")
-    file(INSTALL "${CURRENT_INSTALLED_DIR}/calceph/debug/lib/libcalceph.lib" DESTINATION "${CURRENT_PACKAGES_DIR}/debug/lib")
+    if (NOT VCPKG_BUILD_TYPE OR VCPKG_BUILD_TYPE STREQUAL "debug")
+      file(INSTALL "${CURRENT_INSTALLED_DIR}/calceph/debug/lib/libcalceph.lib" DESTINATION "${CURRENT_PACKAGES_DIR}/debug/lib")
+    endif()
 	file(REMOVE_RECURSE "${CURRENT_INSTALLED_DIR}/calceph")
 
 else() # Build in UNIX
@@ -40,10 +38,10 @@ else() # Build in UNIX
       --enable-fortran=no
       --enable-thread=yes
     )
-    
+
     vcpkg_install_make()
     file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/share")
-    
+
 endif()
 
     file(INSTALL "${SOURCE_PATH}/README.rst" DESTINATION "${CURRENT_PACKAGES_DIR}/share/calceph" RENAME readme.rst)

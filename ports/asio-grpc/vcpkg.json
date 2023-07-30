@@ -1,13 +1,10 @@
 {
   "name": "asio-grpc",
-  "version": "1.1.2",
-  "description": "Asynchronous gRPC with Boost.Asio executors",
+  "version": "2.5.1",
+  "description": "Asynchronous gRPC with Asio/unified executors",
   "homepage": "https://github.com/Tradias/asio-grpc",
+  "license": "Apache-2.0",
   "dependencies": [
-    "boost-asio",
-    "boost-core",
-    "boost-intrusive",
-    "boost-lockfree",
     "grpc",
     {
       "name": "vcpkg-cmake",
@@ -20,7 +17,7 @@
   ],
   "features": {
     "boost-container": {
-      "description": "Use Boost.Container instead of <memory_resource>",
+      "description": "Use Boost.Container instead of <memory_resource> (deprecated)",
       "dependencies": [
         "boost-container"
       ]

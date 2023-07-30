@@ -1,27 +1,37 @@
-vcpkg_fail_port_install(ON_ARCH "arm" ON_TARGET "uwp")
-
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO strukturag/libde265
-    REF 8aed7472df0af25b811828fa14f2f169dc34d35a # v1.0.8
-    SHA512 e2da1436e5b0d8a3841087e879fbbff5a92de4ebb69d097959972ec8c9407305bc2a17020cb46139fbacc84f91ff8cfb4d9547308074ba213e002ee36bb2e006
+    REF "v${VERSION}"
+    SHA512 aa744c521fb15e68940956f70997ab969094aee1c129d404ee9a52f318248353bb8d53250b575b4040402645e44701086b78143f1e1122b61a925e9b6cd07566
     HEAD_REF master
     PATCHES
-        fix-libde265-headers.patch
+        fix-interface-include.patch
+        fix-lib-version.patch
 )
 
-vcpkg_configure_cmake(
-    SOURCE_PATH ${SOURCE_PATH}
-    PREFER_NINJA
+vcpkg_check_features(OUT_FEATURE_OPTIONS FEATURE_OPTIONS
+    INVERTED_FEATURES
+        sse DISABLE_SSE
 )
 
-vcpkg_install_cmake()
-vcpkg_fixup_cmake_targets(CONFIG_PATH lib/cmake/libde265/)
-vcpkg_copy_tools(TOOL_NAMES dec265 enc265 AUTO_CLEAN)
+vcpkg_cmake_configure(
+    SOURCE_PATH "${SOURCE_PATH}"
+    OPTIONS
+        -DCMAKE_DISABLE_FIND_PACKAGE_SDL=ON
+        ${FEATURE_OPTIONS}
+)
+
+vcpkg_cmake_install()
+vcpkg_cmake_config_fixup(CONFIG_PATH lib/cmake/libde265)
+vcpkg_copy_tools(TOOL_NAMES dec265 AUTO_CLEAN)
+vcpkg_fixup_pkgconfig()
 
 if(VCPKG_LIBRARY_LINKAGE STREQUAL "static")
     file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/bin" "${CURRENT_PACKAGES_DIR}/debug/bin")
+    vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/include/libde265/de265.h" "!defined(LIBDE265_STATIC_BUILD)" "0")
+else()
+    vcpkg_replace_string("${CURRENT_PACKAGES_DIR}/include/libde265/de265.h" "!defined(LIBDE265_STATIC_BUILD)" "1")
 endif()
 
 file(REMOVE_RECURSE "${CURRENT_PACKAGES_DIR}/debug/include")
-file(INSTALL ${SOURCE_PATH}/COPYING DESTINATION ${CURRENT_PACKAGES_DIR}/share/${PORT} RENAME copyright)
+vcpkg_install_copyright(FILE_LIST "${SOURCE_PATH}/COPYING")
