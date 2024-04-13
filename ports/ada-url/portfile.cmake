@@ -2,8 +2,10 @@ vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO ada-url/ada
     REF "v${VERSION}"
-    SHA512 bb3814af0728b924a6685cfa510f1ccf7ced692850c55849e42c88c07234e0f8fc19426ecfdd1c1ef84543041b0604da312e02b98bd7c8cd2609f8a5ed3ae224
+    SHA512 987782dacee5115f061f5579257fddf3ed26cdb8654279ce47915bef03abe7ca9904f0f4082b774be23772a3400925e908db45d9da935c7683269aae0ac2186a
     HEAD_REF main
+    PATCHES
+        no-cpm.patch
 )
 
 vcpkg_check_features(
@@ -14,11 +16,13 @@ vcpkg_check_features(
 
 vcpkg_cmake_configure(
     SOURCE_PATH "${SOURCE_PATH}"
-    DISABLE_PARALLEL_CONFIGURE
     OPTIONS
         -DADA_BENCHMARKS=OFF
         -DBUILD_TESTING=OFF
+        -DCMAKE_DISABLE_FIND_PACKAGE_Python3=ON
         ${FEATURE_OPTIONS}
+    OPTIONS_DEBUG
+        -DADA_TOOLS=OFF
 )
 
 vcpkg_cmake_install()
